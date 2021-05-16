@@ -17,14 +17,14 @@ const resize = (ctx) => {
 
 const drawTest = (ctx, t, p) => {
 	const mid = getMiddle(ctx);
-	for (let i = 0; i < p.dotCount; i++) {
+	for (let i = p.dotCount - 1; i > 0; i--) {
 		ctx.beginPath();
 		const rel = (1 / p.dotCount) * (i + 1);
-		const prog = (t + 2000) * (p.dotSpeed * (1 + rel));
-		const dotPosX = Math.sin(prog);
-		const dotPosY = Math.cos(prog);
-		const x = mid.x + dotPosX * (20 + (p.circleRadius * rel));
-		const y = mid.y + dotPosY * (20 + (p.circleRadius * rel));
+		const prog = rel * Math.PI * 35;
+		const dotPosX = Math.sin(prog) + Math.sin(t * p.dotSpeed);
+		const dotPosY = Math.cos(prog) + Math.cos(t * p.dotSpeed);
+		const x = mid.x + dotPosX * (0 + (p.circleRadius * rel));
+		const y = mid.y + dotPosY * (0 + (p.circleRadius * rel));
 		ctx.arc(x, y, p.dotRadius, 0, 2 * Math.PI, false);
 		ctx.fillStyle = `rgba(255,255,255,1)`;
 		ctx.fill();
