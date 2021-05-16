@@ -18,18 +18,28 @@ const resize = (ctx) => {
 const drawTest = (ctx, t, p) => {
 	const mid = getMiddle(ctx);
 	for (let i = p.dotCount - 1; i > 0; i--) {
-		ctx.beginPath();
 		const rel = (1 / p.dotCount) * (i + 1);
 		const prog = rel * Math.PI * 35;
-		const dotPosX = Math.sin(prog) + Math.sin(t * p.dotSpeed);
-		const dotPosY = Math.cos(prog) + Math.cos(t * p.dotSpeed);
+		const dotPosX = Math.sin(prog) + Math.cos(t * p.dotSpeed);
+		const dotPosY = Math.cos(prog) + Math.sin(t * p.dotSpeed);
 		const x = mid.x + dotPosX * (0 + (p.circleRadius * rel));
 		const y = mid.y + dotPosY * (0 + (p.circleRadius * rel));
-		ctx.arc(x, y, p.dotRadius, 0, 2 * Math.PI, false);
-		ctx.fillStyle = `rgba(255,255,255,1)`;
-		ctx.fill();
+		
+		const val = 255 - rel * 255;
+		ctx.fillStyle = `rgba(${val},${val},${val},1)`;
 		ctx.lineWidth = 1;
 		ctx.strokeStyle = "rgba(0,0,0,1)";
+
+		ctx.beginPath();
+		ctx.arc(
+			x,
+			y,
+			p.dotRadius,
+			0,
+			2 * Math.PI,
+			false
+		);
+		ctx.fill();
 		ctx.stroke();
 	}
 }
@@ -49,10 +59,10 @@ const update = (ctx, t) => {
 		return;
 	}
 	const p = {
-		dotCount: 100,
+		dotCount: 200,
 		dotSpeed: 0.02,
-		dotRadius: 5,
-		circleRadius: 80,
+		dotRadius: 20,
+		circleRadius: 140,
 	};
 	resize(ctx);
 	draw(ctx, t, p);
