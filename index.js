@@ -15,52 +15,54 @@ const resize = (ctx) => {
   }
 }
 
-const drawTest = (ctx, t) => {
-	const animSpeed = 0.005;
-	const animRadius = 100;
-	const middle = getMiddle(ctx);
-	for (let i = 0; i < 14; i++) {
+const drawTest = (ctx, t, p) => {
+	const mid = getMiddle(ctx);
+	for (let i = 0; i < p.dotCount; i++) {
 		ctx.beginPath();
-		const offsetX = Math.sin(t * animSpeed * (i + 1) + i * 0.45);
-		const offsetY = Math.cos(t * animSpeed * (i + 1) + i * 0.45);
-		const x = middle.x + offsetX * animRadius;
-		const y = middle.y + offsetY * animRadius;
-		const radius = 22;
-		const val = 0.5 * (offsetX > 0 ? Math.abs(offsetY) : 2 - Math.abs(offsetY));
-		const val2 = Math.abs(offsetY) * (255 - 50) + 50;
-		const val3 = val * radius;
-		const val4 = (255/7) * Math.abs(-7 + i);
-		ctx.arc(x, y, val3, 0, 2 * Math.PI, false);
-		ctx.fillStyle = `rgb(${val4}, ${val4}, ${val4})`;
+		const rel = (1 / p.dotCount) * (i + 1);
+		const prog = (t + 2000) * (p.dotSpeed * (1 + rel));
+		const dotPosX = Math.sin(prog);
+		const dotPosY = Math.cos(prog);
+		const x = mid.x + dotPosX * (20 + (p.circleRadius * rel));
+		const y = mid.y + dotPosY * (20 + (p.circleRadius * rel));
+		ctx.arc(x, y, p.dotRadius, 0, 2 * Math.PI, false);
+		ctx.fillStyle = `rgba(255,255,255,1)`;
 		ctx.fill();
 		ctx.lineWidth = 1;
-		ctx.strokeStyle = "rgba(0,0,0,0.5)";
+		ctx.strokeStyle = "rgba(0,0,0,1)";
 		ctx.stroke();
 	}
 }
 
 const clear = (ctx) => {
-	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+	ctx.fillStyle = `rgba(0,0,0)`;
+	ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 }
 
-const draw = (ctx, t) => {
+const draw = (ctx, t, p) => {
 	clear(ctx);
-	drawTest(ctx, t);
+	drawTest(ctx, t, p);
 }
 
-const update = (ctx, t = 0) => {
+const update = (ctx, t) => {
 	if (ctx.canvas == null) {
 		return;
 	}
+	const p = {
+		dotCount: 100,
+		dotSpeed: 0.02,
+		dotRadius: 5,
+		circleRadius: 80,
+	};
 	resize(ctx);
-	draw(ctx, t);
+	draw(ctx, t, p);
 	requestAnimationFrame(() => update(ctx, t + 1));
 }
 
 const setup = () => {
 	const canvas = document.querySelector("canvas");
 	const ctx = canvas.getContext("2d");
-	update(ctx);
+	update(ctx, 0);
 };
 
 setup();
