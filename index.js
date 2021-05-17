@@ -15,6 +15,10 @@ const resize = (ctx) => {
   }
 }
 
+function randomInt(min, max) {
+	return Math.floor(Math.random() * (max - min) ) + min;
+}
+
 const drawTest1 = (ctx, t, p) => {
 	const mid = getMiddle(ctx);
 	for (let i = p.dotCount - 1; i > 0; i--) {
@@ -25,8 +29,8 @@ const drawTest1 = (ctx, t, p) => {
 		const x = mid.x + dotPosX * p.circleRadius * rel;
 		const y = mid.y + dotPosY * p.circleRadius * rel;
 
-		const val = 255 - rel * 255;
-		ctx.fillStyle = `rgba(${val},${val},${val},1)`;
+		const col = 255 - rel * 255;
+		ctx.fillStyle = `rgba(${col},${col},${col},1)`;
 		ctx.lineWidth = 1;
 		ctx.strokeStyle = "rgba(0,0,0,1)";
 
@@ -35,34 +39,6 @@ const drawTest1 = (ctx, t, p) => {
 		ctx.fill();
 		ctx.stroke();
 	}
-}
-
-const drawTest2 = (ctx, t, p) => {
-	ctx.fillStyle = `rgba(255,255,255,1)`;
-	ctx.lineWidth = 1;
-	ctx.strokeStyle = "rgba(0,0,0,1)";
-
-	const mid = getMiddle(ctx);
-
-
-	const x1 = mid.x + Math.sin(t * 0.01) * 100;
-	const y1 = mid.y + Math.cos(t * 0.01) * 100;
-	const x2 = mid.x + Math.sin(t * 0.01) * (100 - p.dotRadius*2);
-	const y2 = mid.y + Math.cos(t * 0.01) * (100 - p.dotRadius*2);
-
-
-	ctx.beginPath();
-	ctx.arc(x1, y1, p.dotRadius, 0, 2 * Math.PI, false);
-	ctx.fill();
-	ctx.stroke();
-	ctx.beginPath();
-	ctx.arc(x2, y2, p.dotRadius, 0, 2 * Math.PI, false);
-	ctx.fill();
-	ctx.stroke();
-	ctx.beginPath();
-	ctx.arc(mid.x, mid.y, p.dotRadius, 0, 2 * Math.PI, false);
-	ctx.fill();
-	ctx.stroke();
 }
 
 const clear = (ctx) => {
@@ -80,11 +56,11 @@ const update = (ctx, t) => {
 		return;
 	}
 	const p = {
-		dotCount: 200,
+		dotCount: 1000,
 		dotSpeed: 0.01,
-		dotRadius: 20,
-		circleRadius: 140,
-		progSteps: 35,
+		dotRadius: 12,
+		circleRadius: 200,
+		progSteps: 44,
 	};
 	resize(ctx);
 	draw(ctx, t, p);
