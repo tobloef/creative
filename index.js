@@ -35,7 +35,7 @@ const drawTest1 = (ctx, t, p) => {
 		ctx.strokeStyle = "rgba(0,0,0,1)";
 
 		ctx.beginPath();
-		ctx.arc(x, y, p.dotRadius, 0, 2 * Math.PI, false);
+		ctx.arc(x, y, p.dotRadius * rel, 0, 2 * Math.PI, false);
 		ctx.fill();
 		ctx.stroke();
 	}
@@ -58,7 +58,7 @@ const update = (ctx, t) => {
 	const p = {
 		dotCount: 1000,
 		dotSpeed: 0.01,
-		dotRadius: 12,
+		dotRadius: 14,
 		circleRadius: 200,
 		progSteps: 44,
 	};
