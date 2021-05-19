@@ -23,6 +23,7 @@ html, body {
 	-webkit-box-direction: normal;
 	-ms-flex-direction: column;
 	flex-direction: column;
+	overflow: hidden;
 }
 
 .canvas-wrapper {
@@ -30,16 +31,16 @@ html, body {
 	display: -ms-flexbox;
 	display: flex;
 }
+canvas {
+	border: 1px solid grey;
+	width: 100%;
+}
 
 .main {
 	-webkit-box-flex: 1;
 	-ms-flex: 1;
 	flex: 1;
-}
-
-canvas {
-	border: 1px solid grey;
-	width: 100%;
+	min-height: 0;
 }
 
 .params {
