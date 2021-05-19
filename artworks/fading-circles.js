@@ -5,29 +5,59 @@ import {
 
 export const params = {
   dotCount: {
-    default: 500,
-    min: 0,
-    max: 0,
+    initial: 500,
+    min: 10,
+    max: 1000,
+    decimals: 0,
   },
   dotSpeed: {
-    default: 0.01,
-    min: 0,
-    max: 0,
+    initial: 0.01,
+    min: 0.001,
+    max: 0.02,
+    decimals: 3,
   },
   dotRadius: {
-    default: 14,
-    min: 0,
-    max: 0,
+    initial: 14,
+    min: 1,
+    max: 50,
+    decimals: 0,
   },
   circleRadius: {
-    default: 180,
-    min: 0,
-    max: 0,
+    initial: 180,
+    min: 10,
+    max: 300,
+    decimals: 0,
   },
   progSteps: {
-    default: 44,
+    initial: 44,
+    min: 1,
+    max: 100,
+    decimals: 0,
+  },
+
+  colorH: {
+    initial: 0,
     min: 0,
-    max: 0,
+    max: 360,
+    decimals: 0,
+  },
+  colorS: {
+    initial: 0,
+    min: 0,
+    max: 100,
+    decimals: 0,
+  },
+  colorL: {
+    initial: 100,
+    min: 0,
+    max: 100,
+    decimals: 0,
+  },
+  colorA: {
+    initial: 1,
+    min: 0,
+    max: 1,
+    decimals: 2,
   },
 }
 
@@ -42,8 +72,8 @@ export const draw = (ctx, t, p) => {
     const x = mid.x + dotPosX * p.circleRadius * rel;
     const y = mid.y + dotPosY * p.circleRadius * rel;
 
-    const col = 255 - rel * 255;
-    ctx.fillStyle = `rgba(${col},${col},${col},1)`;
+    const l = p.colorL - rel * p.colorL;
+    ctx.fillStyle = `hsla(${p.colorH}, ${p.colorS}%, ${l}%, ${p.colorA})`;
     ctx.lineWidth = 1;
     ctx.strokeStyle = "black";
 

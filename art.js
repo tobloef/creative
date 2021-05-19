@@ -1,14 +1,14 @@
 import {
   resize,
 } from './canvas.js';
-import { getParams } from './params.js';
+import { getParamValues } from './params.js';
 
 const update = (ctx, artwork, t) => {
   if (ctx.canvas == null) {
     return;
   }
   resize(ctx);
-  const p = getParams(artwork);
+  const p = getParamValues(artwork);
   artwork.draw(ctx, t, p);
   requestAnimationFrame(() => {
     update(ctx, artwork, t + 1);
