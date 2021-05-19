@@ -27,8 +27,8 @@ export const getParamValues = () => {
     }), {});
 }
 
-export const setup = (ctx, artwork) => {
-  params = Object.entries(artwork.params)
+export const setup = (ctx, sketch) => {
+  params = Object.entries(sketch.params)
     .reduce((acc, [key, props]) => {
       return {
         ...acc,
