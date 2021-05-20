@@ -15,6 +15,6 @@ const update = (ctx, sketch, t) => {
   });
 }
 
-export const setup = (ctx, sketch) => {
+export const setup = async (ctx, sketch) => {
   update(ctx, sketch, 0);
 };

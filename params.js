@@ -27,7 +27,20 @@ export const getParamValues = () => {
     }), {});
 }
 
-export const setup = (ctx, sketch) => {
+export const setup = async (ctx, sketch) => {
+  setupParams(sketch);
+  setupSliders();
+  setupCanvasListeners(ctx);
+  try {
+    await setupMidi();
+  } catch (error) {
+    console.error("Error setting up MIDI.", error);
+  }
+
+  update(ctx);
+};
+
+const setupParams = (sketch) => {
   params = Object.entries(sketch.params)
     .reduce((acc, [key, props]) => {
       return {
@@ -38,28 +51,41 @@ export const setup = (ctx, sketch) => {
         },
       }
     }, {});
+}
 
-  const sliderWidth = (Math.max(BAR_WIDTH, SELECTOR_WIDTH) + SLIDER_SPACING);
-  const slidersStart = getMiddle(ctx).x - ((sliderWidth * Object.values(params).length) / 2);
+const setupSliders = () => {
   sliders = Object.entries(params)
     .map(([key, { value, min, max }], i) => {
       return ({
-        x: slidersStart + i * sliderWidth,
-        y: SLIDER_MARGIN,
+        i,
         prog: (value - min) / (max - min),
         moving: false,
         hovering: false,
         param: key,
       });
     });
+}
 
+const setupCanvasListeners = (ctx) => {
   ctx.canvas.addEventListener("mousemove", (e) => handleMouseMove(e, ctx), false);
   ctx.canvas.addEventListener("mouseup", (e) => handleMouseUp(e, ctx), false);
   ctx.canvas.addEventListener("mousedown", (e) => handleMouseDown(e, ctx), false);
   ctx.canvas.addEventListener("mouseleave", (e) => handleMouseDown(e, ctx), false);
+}
 
-  update(ctx);
-};
+const setupMidi = async () => {
+  const midi = await navigator.requestMIDIAccess();
+  for (const input of midi.inputs.values()) {
+    input.onmidimessage = (e) => {
+      const [ _, key, val ] = e.data;
+      const slider = Object.values(sliders)
+        .find((slider) => slider.i === key);
+      if (slider != null) {
+        setSliderProg(slider, val / 127);
+      }
+    };
+  }
+}
 
 const update = (ctx) => {
   if (ctx.canvas == null) {
@@ -84,10 +110,14 @@ const draw = (ctx) => {
 
 const getSliderStuff = (slider, ctx) => {
   const size = getSize(ctx);
-  const barX = slider.x - BAR_WIDTH/2;
-  const barY = slider.y;
-  const selectorX = slider.x - SELECTOR_WIDTH/2;
-  const minY = slider.y - SELECTOR_HEIGHT/2;
+  const sliderWidth = (Math.max(BAR_WIDTH, SELECTOR_WIDTH) + SLIDER_SPACING);
+  const slidersStart = getMiddle(ctx).x - ((sliderWidth * Object.values(params).length) / 2);
+  const x = slidersStart + slider.i * sliderWidth;
+  const y = SLIDER_MARGIN;
+  const barX = x - BAR_WIDTH/2;
+  const barY = y;
+  const selectorX = x - SELECTOR_WIDTH/2;
+  const minY = y - SELECTOR_HEIGHT/2;
   const barHeight = size.h - SLIDER_MARGIN * 2 + 3;
   const selectorY = barHeight * (1 - slider.prog) + minY;
 
@@ -157,6 +187,7 @@ const handleMouseMove = (e, ctx) => {
       selectorX,
       selectorY,
       barHeight,
+      barY,
     } = getSliderStuff(slider, ctx);
 
     const hovering = isInRect(
@@ -173,18 +204,23 @@ const handleMouseMove = (e, ctx) => {
     isHover = isHover || slider.moving || hovering;
 
     if (slider.moving) {
-      const relative = mouseY - slider.y;
+      const relative = mouseY - barY;
       const bounded = Math.min(Math.max(relative, 0), barHeight);
-      slider.prog = 1 - (bounded / barHeight);
-      const param = params[slider.param];
-      const range = param.max - param.min;
-      const newValue = range * slider.prog + param.min;
-      param.value = round(newValue, param.decimals);
+      const newProg = 1 - (bounded / barHeight);
+      setSliderProg(slider, newProg);
     }
   }
 
   setHover(ctx, isHover);
 };
+
+const setSliderProg = (slider, prog) => {
+  slider.prog = prog;
+  const param = params[slider.param];
+  const range = param.max - param.min;
+  const newValue = range * slider.prog + param.min;
+  param.value = round(newValue, param.decimals);
+}
 
 const handleMouseUp = (e, ctx) => {
   for (const slider of Object.values(sliders)) {
