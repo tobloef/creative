@@ -47,3 +47,10 @@ canvas {
 	height: 150px;
 	margin-top: 10px;
 }
+
+.sketches-link {
+	position: fixed;
+	bottom: 130px;
+	left: 20px;
+	font-family: sans-serif;
+}
