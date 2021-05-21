@@ -22,6 +22,7 @@ let sliders = {};
 let bank = 1;
 let saveUnlocked = false;
 let isMidi = false;
+let bankHasData = false;
 
 export const getParamValues = () => {
   return Object.entries(params)
@@ -35,6 +36,7 @@ export const setup = async (ctx, sketch) => {
   setupParams(sketch);
   setupSliders();
   setupCanvasListeners(ctx);
+
   try {
     await setupMidi(sketch);
   } catch (error) {
@@ -78,6 +80,8 @@ const setupCanvasListeners = (ctx) => {
 }
 
 const setupMidi = async (sketch) => {
+  bankHasData = localStorage.getItem(sketch.name + "_stored_" + bank) != null;
+
   const midi = await navigator.requestMIDIAccess();
   for (const input of midi.inputs.values()) {
     isMidi = true;
@@ -86,6 +90,7 @@ const setupMidi = async (sketch) => {
       // Save
       if (saveUnlocked && key === 45 && val === 127) {
         localStorage.setItem(sketch.name + "_stored_" + bank, JSON.stringify(sliders));
+        bankHasData = true;
         return;
       }
       // Save lock
@@ -97,8 +102,10 @@ const setupMidi = async (sketch) => {
       if (key === 41 && val === 127) {
         const json = localStorage.getItem(sketch.name + "_stored_" + bank);
         if (json == null) {
+          bankHasData = false;
           return;
         }
+        bankHasData = true;
         sliders = JSON.parse(json);
         updateParams();
         return;
@@ -106,11 +113,13 @@ const setupMidi = async (sketch) => {
       // Next bank
       if (key === 44 && val === 127) {
         bank = bank + 1;
+        bankHasData = localStorage.getItem(sketch.name + "_stored_" + bank) != null;
         return;
       }
       // Prev bank
       if (key === 43 && val === 127) {
         bank = Math.max(1, bank - 1);
+        bankHasData = localStorage.getItem(sketch.name + "_stored_" + bank) != null;
         return;
       }
       // Sliders
@@ -144,7 +153,7 @@ const draw = (ctx) => {
 
   if (isMidi) {
     ctx.font = `16px monospace`;
-    ctx.fillText("Bank #" + bank, 10, 50);
+    ctx.fillText("Bank #" + bank + (bankHasData ? " (has data)" : " (no data)"), 10, 50);
   }
 }
 
