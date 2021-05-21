@@ -19,6 +19,10 @@ const SLIDER_MARGIN = 15;
 let params = {};
 let sliders = {};
 
+let bank = 1;
+let saveUnlocked = false;
+let isMidi = false;
+
 export const getParamValues = () => {
   return Object.entries(params)
     .reduce((acc, [key, { value }]) => ({
@@ -32,7 +36,7 @@ export const setup = async (ctx, sketch) => {
   setupSliders();
   setupCanvasListeners(ctx);
   try {
-    await setupMidi();
+    await setupMidi(sketch);
   } catch (error) {
     console.error("Error setting up MIDI.", error);
   }
@@ -73,13 +77,44 @@ const setupCanvasListeners = (ctx) => {
   ctx.canvas.addEventListener("mouseleave", (e) => handleMouseDown(e, ctx), false);
 }
 
-const setupMidi = async () => {
+const setupMidi = async (sketch) => {
   const midi = await navigator.requestMIDIAccess();
   for (const input of midi.inputs.values()) {
+    isMidi = true;
     input.onmidimessage = (e) => {
       const [ _, key, val ] = e.data;
-      const slider = Object.values(sliders)
-        .find((slider) => slider.i === key);
+      // Save
+      if (saveUnlocked && key === 45 && val === 127) {
+        localStorage.setItem(sketch.name + "_stored_" + bank, JSON.stringify(sliders));
+        return;
+      }
+      // Save lock
+      if (key === 42) {
+        saveUnlocked = val > 0;
+        return;
+      }
+      // Load
+      if (key === 41 && val === 127) {
+        const json = localStorage.getItem(sketch.name + "_stored_" + bank);
+        if (json == null) {
+          return;
+        }
+        sliders = JSON.parse(json);
+        updateParams();
+        return;
+      }
+      // Next bank
+      if (key === 44 && val === 127) {
+        bank = bank + 1;
+        return;
+      }
+      // Prev bank
+      if (key === 43 && val === 127) {
+        bank = Math.max(1, bank - 1);
+        return;
+      }
+      // Sliders
+      const slider = sliders.find((slider) => slider.i === key);
       if (slider != null) {
         setSliderProg(slider, val / 127);
       }
@@ -98,13 +133,18 @@ const update = (ctx) => {
 
 const draw = (ctx) => {
   clear(ctx, "white");
-  for (const slider of Object.values(sliders)) {
+  for (const slider of sliders) {
     drawSlider(ctx, slider);
   }
-  for (const slider of Object.values(sliders)) {
+  for (const slider of sliders) {
     if (slider.hovering || slider.moving) {
       drawSliderTooltip(ctx, slider);
     }
+  }
+
+  if (isMidi) {
+    ctx.font = `16px monospace`;
+    ctx.fillText("Bank #" + bank, 10, 50);
   }
 }
 
@@ -182,7 +222,7 @@ const handleMouseMove = (e, ctx) => {
 
   let isHover = false;
 
-  for (const slider of Object.values(sliders)) {
+  for (const slider of sliders) {
     const {
       selectorX,
       selectorY,
@@ -216,14 +256,20 @@ const handleMouseMove = (e, ctx) => {
 
 const setSliderProg = (slider, prog) => {
   slider.prog = prog;
-  const param = params[slider.param];
-  const range = param.max - param.min;
-  const newValue = range * slider.prog + param.min;
-  param.value = round(newValue, param.decimals);
+  updateParams();
+}
+
+const updateParams = () => {
+  for (const slider of sliders) {
+    const param = params[slider.param];
+    const range = param.max - param.min;
+    const newValue = range * slider.prog + param.min;
+    param.value = round(newValue, param.decimals);
+  }
 }
 
 const handleMouseUp = (e, ctx) => {
-  for (const slider of Object.values(sliders)) {
+  for (const slider of sliders) {
     slider.moving = false;
   }
 };
@@ -233,7 +279,7 @@ const handleMouseDown = (e, ctx) => {
   const mouseY = e.pageY - ctx.canvas.offsetTop;
 
 
-  for (const slider of Object.values(sliders)) {
+  for (const slider of sliders) {
     const {
       selectorX,
       selectorY,

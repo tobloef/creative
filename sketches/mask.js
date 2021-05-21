@@ -5,6 +5,8 @@ import {
 } from '../canvas.js';
 import { TAU } from '../math.js';
 
+export const name = "mask";
+
 export const params = {
   count: {
     initial: 4,

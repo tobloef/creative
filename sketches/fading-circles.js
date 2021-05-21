@@ -3,6 +3,8 @@ import {
   getMiddle,
 } from '../canvas.js';
 
+export const name = "fadingCircles";
+
 export const params = {
   dotCount: {
     initial: 500,
