@@ -83,52 +83,58 @@ const setupMidi = async (sketch) => {
   bankHasData = localStorage.getItem(sketch.name + "_stored_" + bank) != null;
 
   const midi = await navigator.requestMIDIAccess();
-  for (const input of midi.inputs.values()) {
-    isMidi = true;
-    input.onmidimessage = (e) => {
-      const [ _, key, val ] = e.data;
-      // Save
-      if (saveUnlocked && key === 45 && val === 127) {
-        localStorage.setItem(sketch.name + "_stored_" + bank, JSON.stringify(sliders));
-        bankHasData = true;
+
+  const output = midi.outputs.values().next().value;
+  const input = midi.inputs.values().next().value;
+
+  isMidi = true;
+  input.onmidimessage = (e) => {
+    const [ _, key, val ] = e.data;
+    output.send([176, key, val]);
+    // Save
+    if (saveUnlocked && key === 45 && val === 127) {
+      localStorage.setItem(sketch.name + '_stored_' + bank, JSON.stringify(sliders));
+      bankHasData = true;
+      return;
+    }
+    // Save lock
+    if (key === 42) {
+      saveUnlocked = val === 127;
+      return;
+    }
+    // Load
+    if (key === 41 && val === 127) {
+      const json = localStorage.getItem(sketch.name + '_stored_' + bank);
+      if (json == null) {
+        bankHasData = false;
         return;
       }
-      // Save lock
-      if (key === 42) {
-        saveUnlocked = val > 0;
-        return;
-      }
-      // Load
-      if (key === 41 && val === 127) {
-        const json = localStorage.getItem(sketch.name + "_stored_" + bank);
-        if (json == null) {
-          bankHasData = false;
-          return;
-        }
-        bankHasData = true;
-        sliders = JSON.parse(json);
-        updateParams();
-        return;
-      }
-      // Next bank
-      if (key === 44 && val === 127) {
-        bank = bank + 1;
-        bankHasData = localStorage.getItem(sketch.name + "_stored_" + bank) != null;
-        return;
-      }
-      // Prev bank
-      if (key === 43 && val === 127) {
-        bank = Math.max(1, bank - 1);
-        bankHasData = localStorage.getItem(sketch.name + "_stored_" + bank) != null;
-        return;
-      }
-      // Sliders
-      const slider = sliders.find((slider) => slider.i === key);
-      if (slider != null) {
-        setSliderProg(slider, val / 127);
-      }
-    };
-  }
+      bankHasData = true;
+      sliders = JSON.parse(json);
+      updateParams();
+      return;
+    }
+    // Next bank
+    if (key === 44 && val === 127) {
+      bank = bank + 1;
+      bankHasData = localStorage.getItem(sketch.name + '_stored_' + bank) != null;
+      return;
+    }
+    // Prev bank
+    if (key === 43 && val === 127) {
+      bank = Math.max(1, bank - 1);
+      bankHasData = localStorage.getItem(sketch.name + '_stored_' + bank) != null;
+      return;
+    }
+    // Sliders
+    const slider = sliders.find((slider) => slider.i === key);
+    if (slider != null) {
+      setSliderProg(slider, val / 127);
+      output.send([176, 64 + slider.i, val >= 1 ? 127 : 0]);
+      output.send([176, 48 + slider.i, val >= 64 ? 127 : 0]);
+      output.send([176, 32 + slider.i, val >= 127 ? 127 : 0]);
+    }
+  };
 }
 
 const update = (ctx) => {
