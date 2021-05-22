@@ -80,14 +80,18 @@ const setupCanvasListeners = (ctx) => {
 }
 
 const setupMidi = async (sketch) => {
-  bankHasData = localStorage.getItem(sketch.name + "_stored_" + bank) != null;
-
   const midi = await navigator.requestMIDIAccess();
 
   const output = midi.outputs.values().next().value;
   const input = midi.inputs.values().next().value;
 
+  if (input == null || output == null) {
+    return;
+  }
+
   isMidi = true;
+  bankHasData = localStorage.getItem(sketch.name + "_stored_" + bank) != null;
+
   input.onmidimessage = (e) => {
     const [ _, key, val ] = e.data;
     output.send([176, key, val]);
