@@ -6,14 +6,21 @@ export const getMiddle = (ctx) => {
   };
 }
 
-export const resize = (ctx) => {
-  const size = getSize(ctx);
+export const resize = (
+  sourceCtx,
+  targetCtx = sourceCtx,
+  callback,
+) => {
+  const size = getSize(sourceCtx);
   if (
-    ctx.canvas.width !== size.w ||
-    ctx.canvas.height !== size.h
+    targetCtx.canvas.width !== size.w ||
+    targetCtx.canvas.height !== size.h
   ) {
-    ctx.canvas.width = size.w;
-    ctx.canvas.height = size.h;
+    targetCtx.canvas.width = size.w;
+    targetCtx.canvas.height = size.h;
+    if (callback != null) {
+      callback();
+    }
   }
 }
 

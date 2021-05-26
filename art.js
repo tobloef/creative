@@ -18,5 +18,8 @@ const update = (ctx, sketch, prevTime) => {
 }
 
 export const setup = async (ctx, sketch) => {
+  if (sketch.setup != null) {
+    sketch.setup(ctx);
+  }
   update(ctx, sketch, performance.now());
 };

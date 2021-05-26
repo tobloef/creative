@@ -2,10 +2,12 @@ import * as art from "./art.js";
 import * as params from "./params.js";
 import * as mask from "./sketches/mask.js";
 import * as fadingCircles from "./sketches/fading-circles.js";
+import * as noise from "./sketches/noise.js";
 
 const sketchMap = {
 	mask,
 	fadingCircles,
+	noise,
 };
 
 const main = async () => {
