@@ -1,9 +1,11 @@
 import {
   clear,
+  drawPath,
+  fill,
   getMiddle,
-  roundRectPath,
 } from '../canvas.js';
 import { TAU } from '../math.js';
+import { roundRect } from '../paths.js';
 
 export const name = "mask";
 
@@ -77,11 +79,14 @@ export const draw = (ctx, dt, p) => {
     ctx.rotate((TAU / 360) * prog + (Math.PI/2) * i);
     ctx.translate(-x, -y);
 
-    ctx.fillStyle = "white";
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = "black";
-    roundRectPath(ctx, x - p.width/2, y - p.height/2, p.width, p.height, p.cornerRadius, true)
-    ctx.stroke();
+    const path = roundRect(x - p.width/2, y - p.height/2, p.width, p.height, p.cornerRadius)
+    fill(
+      path,
+      {
+        stroke: "black",
+        lineWidth: 2,
+      }
+    )(ctx);
 
     ctx.setTransform(transform);
   }
@@ -91,13 +96,16 @@ export const draw = (ctx, dt, p) => {
 
   clear(ctx, "white");
 
-  ctx.fillStyle = "#e14c45";
-  ctx.lineWidth = 1;
-  ctx.strokeStyle = "black";
   const bigRectSize = 350;
-  roundRectPath(ctx, mid.x - bigRectSize/2, mid.y - bigRectSize/2, bigRectSize, bigRectSize, 0)
-  ctx.fill();
-  ctx.stroke();
+  const path = roundRect(mid.x - bigRectSize/2, mid.y - bigRectSize/2, bigRectSize, bigRectSize, 0);
+  fill(
+    drawPath(path),
+    {
+      fill: "#e14c45",
+      stroke: "black",
+      lineWidth: 1,
+    }
+  )(ctx);
 
   ctx.restore();
 }

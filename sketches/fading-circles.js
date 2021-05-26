@@ -1,5 +1,7 @@
 import {
   clear,
+  drawPath,
+  fill,
   getMiddle,
 } from '../canvas.js';
 
@@ -53,13 +55,16 @@ export const draw = (ctx, dt, p) => {
     const y = mid.y + dotPosY * p.circleRadius * rel;
 
     const l = 100 - rel * 100;
-    ctx.fillStyle = `hsla(0, 0%, ${l}%, 1)`;
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = "black";
 
-    ctx.beginPath();
-    ctx.arc(x, y, p.dotRadius * rel, 0, 2 * Math.PI, false);
-    ctx.fill();
-    ctx.stroke();
+    const path = (ctx) => ctx.arc(x, y, p.dotRadius * rel, 0, 2 * Math.PI, false);
+
+    fill(
+      drawPath(path),
+      {
+        fill: `hsla(0, 0%, ${l}%, 1)`,
+        stroke: "black",
+        lineWidth: 1,
+      }
+    )(ctx)
   }
 }
