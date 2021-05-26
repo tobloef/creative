@@ -39,14 +39,18 @@ export const params = {
     decimals: 0,
   },
   rotationSpeed: {
-    initial: 0.5,
+    initial: 80,
     min: 0,
-    max: 3,
+    max: 200,
     decimals: 1,
   }
 }
 
-export const draw = (ctx, t, p) => {
+let prog = 0;
+
+export const draw = (ctx, dt, p) => {
+  prog += dt * p.rotationSpeed;
+
   clear(ctx, "#eeeeee");
   const mid = getMiddle(ctx);
 
@@ -70,7 +74,7 @@ export const draw = (ctx, t, p) => {
     const transform = ctx.getTransform();
 
     ctx.translate(x, y);
-    ctx.rotate((TAU / 360) * t * p.rotationSpeed + (Math.PI/2) * i);
+    ctx.rotate((TAU / 360) * prog + (Math.PI/2) * i);
     ctx.translate(-x, -y);
 
     ctx.fillStyle = "white";

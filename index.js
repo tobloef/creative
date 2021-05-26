@@ -14,8 +14,8 @@ const main = async () => {
 	const sketchName = new URLSearchParams(window.location.search).get("sketch");
 	const sketch = sketchMap[sketchName] || mask;
 
-	await setupMain(sketch);
 	await setupParams(sketch);
+	await setupMain(sketch);
 };
 
 const checkMobile = () => {

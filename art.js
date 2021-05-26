@@ -3,18 +3,20 @@ import {
 } from './canvas.js';
 import { getParamValues } from './params.js';
 
-const update = (ctx, sketch, t) => {
+const update = (ctx, sketch, prevTime) => {
   if (ctx.canvas == null) {
     return;
   }
   resize(ctx);
   const p = getParamValues(sketch);
-  sketch.draw(ctx, t, p);
+  const curTime = performance.now();
+  const dt = (curTime - prevTime) / 1000;
+  sketch.draw(ctx, dt, p);
   requestAnimationFrame(() => {
-    update(ctx, sketch, t + 1);
+    update(ctx, sketch, curTime);
   });
 }
 
 export const setup = async (ctx, sketch) => {
-  update(ctx, sketch, 0);
+  update(ctx, sketch, performance.now());
 };

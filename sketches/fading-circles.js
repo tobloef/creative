@@ -13,9 +13,9 @@ export const params = {
     decimals: 0,
   },
   dotSpeed: {
-    initial: 0.01,
-    min: 0.001,
-    max: 0.02,
+    initial: 0.7,
+    min: 0,
+    max: 2,
     decimals: 3,
   },
   dotRadius: {
@@ -30,52 +30,30 @@ export const params = {
     max: 300,
     decimals: 0,
   },
-  progSteps: {
+  aroundSteps: {
     initial: 44,
     min: 1,
     max: 100,
     decimals: 0,
   },
-
-  colorH: {
-    initial: 0,
-    min: 0,
-    max: 360,
-    decimals: 0,
-  },
-  colorS: {
-    initial: 0,
-    min: 0,
-    max: 100,
-    decimals: 0,
-  },
-  colorL: {
-    initial: 100,
-    min: 0,
-    max: 100,
-    decimals: 0,
-  },
-  colorA: {
-    initial: 1,
-    min: 0,
-    max: 1,
-    decimals: 2,
-  },
 }
 
-export const draw = (ctx, t, p) => {
+let prog = 0;
+
+export const draw = (ctx, dt, p) => {
+  prog += dt * p.dotSpeed;
   clear(ctx, "black");
   const mid = getMiddle(ctx);
   for (let i = p.dotCount - 1; i > 0; i--) {
     const rel = (1 / p.dotCount) * (i + 1);
-    const prog = rel * Math.PI * p.progSteps;
-    const dotPosX = Math.sin(prog + t * p.dotSpeed) + Math.cos(t * p.dotSpeed);
-    const dotPosY = Math.cos(prog + t * p.dotSpeed) + Math.sin(t * p.dotSpeed);
+    const around = rel * Math.PI * p.aroundSteps;
+    const dotPosX = Math.sin(around + prog) + Math.cos(prog);
+    const dotPosY = Math.cos(around + prog) + Math.sin(prog);
     const x = mid.x + dotPosX * p.circleRadius * rel;
     const y = mid.y + dotPosY * p.circleRadius * rel;
 
-    const l = p.colorL - rel * p.colorL;
-    ctx.fillStyle = `hsla(${p.colorH}, ${p.colorS}%, ${l}%, ${p.colorA})`;
+    const l = 100 - rel * 100;
+    ctx.fillStyle = `hsla(0, 0%, ${l}%, 1)`;
     ctx.lineWidth = 1;
     ctx.strokeStyle = "black";
 
