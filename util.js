@@ -5,3 +5,7 @@ export const randomChoice = (choices) => {
 export const randomInt = (min, max, seed = undefined) => {
   return Math.floor(Math.random(seed) * ((max + 1) - min)) + min;
 };
+
+export const randBool = (threshold = 0.5) => {
+  return Math.random() > threshold;
+}

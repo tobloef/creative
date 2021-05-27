@@ -10,7 +10,10 @@ import {
   movePoint,
   rotatePoint,
 } from '../math.js';
-import { randomInt } from '../util.js';
+import {
+  randBool,
+  randomInt,
+} from '../util.js';
 
 export const name = 'hexagons';
 
@@ -65,6 +68,15 @@ for (let x = 0; x < 100; x++) {
     randomRots[x][y] = 60 * randomInt(0, 5);
   }
 }
+const decs = [];
+for (let x = 0; x < 100; x++) {
+  decs[x] = [];
+  for (let y = 0; y < 100; y++) {
+    //decs[x][y] = [false, true, true, false, true, true];
+    decs[x][y] = [...Array(6).keys()].map(() => randBool(0.35));
+  }
+}
+
 
 const drawHexBorder = (ctx, radius, mid, rot, lineWidth) => {
   const hexPoints = getHexagonPoints(radius);
@@ -145,12 +157,16 @@ const drawConnection = (ctx, width, mid, rot, lineWidth) => {
   ctx.stroke();
 }
 
-const drawHexDecorations = (ctx, radius, mid, rot, lineWidth) => {
+const drawHexDecorations = (ctx, radius, mid, rot, lineWidth, x, y) => {
   const width = radius * Math.sqrt(3);
-  drawDots(ctx, width, mid, 60 * 0 + rot, lineWidth);
-  drawDots(ctx, width, mid, 60 * 3 + rot, lineWidth);
-  drawConnection(ctx, width, mid, 60 * 1 + rot, lineWidth);
-  drawConnection(ctx, width, mid, 60 * 4 + rot, lineWidth);
+  for (let i = 0; i < 6; i++) {
+    if (decs[x][y][i] && i !== 5) {
+      drawConnection(ctx, width, mid, 60 * i + rot, lineWidth);
+      i++;
+    } else {
+      drawDots(ctx, width, mid, 60 * i + rot, lineWidth);
+    }
+  }
 }
 
 export const draw = (ctx, dt, p) => {
@@ -189,7 +205,7 @@ export const draw = (ctx, dt, p) => {
       drawHexBorder(ctx, p.radius, hexMid, rotation, borderLineSize);
 
       const lineSize = Math.min(p.pathLineSize  * scaling, p.radius / 2);
-      drawHexDecorations(ctx, p.radius, hexMid, rotation, lineSize)
+      drawHexDecorations(ctx, p.radius, hexMid, rotation, lineSize, hexX, hexY);
     }
 
   }
