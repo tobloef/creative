@@ -66,10 +66,95 @@ for (let x = 0; x < 100; x++) {
   }
 }
 
+const drawHexBorder = (ctx, radius, mid, rot, lineWidth) => {
+  const hexPoints = getHexagonPoints(radius);
+
+  const borderPoints = hexPoints
+    .map((point) => movePoint(point, mid))
+    .map((point) => rotatePoint(point, rot, mid));
+
+  ctx.fillStyle = "white";
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = lineWidth;
+
+  ctx.beginPath();
+  ctx.moveTo(borderPoints[0].x, borderPoints[0].y);
+  for (let i = 0; i < borderPoints.length; i++) {
+    const point = borderPoints[(i + 1) % borderPoints.length]
+    ctx.lineTo(point.x, point.y);
+  }
+  ctx.fill();
+  ctx.stroke();
+}
+
+const drawDots = (ctx, width, mid, rot, lineWidth) => {
+  ctx.fillStyle = "black";
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = lineWidth;
+
+  const point = rotatePoint({
+    x: mid.x + width / 2,
+    y: mid.y,
+  }, rot, mid);
+
+  const arcRot = degToRad(rot + 90);
+  ctx.beginPath();
+  ctx.arc(
+    point.x,
+    point.y,
+    lineWidth / 2,
+    arcRot,
+    arcRot + Math.PI
+  )
+  ctx.fill();
+}
+
+const drawConnection = (ctx, width, mid, rot, lineWidth) => {
+  ctx.fillStyle = "black";
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = lineWidth;
+
+  ctx.beginPath();
+
+  const startPointRot = rot;
+  const point1 = rotatePoint({
+    x: mid.x + width / 2,
+    y: mid.y,
+  }, startPointRot, mid);
+  ctx.moveTo(point1.x, point1.y);
+
+  const point2 = rotatePoint({
+    x: mid.x + width / 4,
+    y: mid.y,
+  }, startPointRot, mid);
+  ctx.lineTo(point2.x, point2.y);
+
+  const endPointRot = rot + 60;
+  const point3 = rotatePoint({
+    x: mid.x + width / 4,
+    y: mid.y,
+  }, endPointRot, mid);
+  ctx.lineTo(point3.x, point3.y);
+
+  const point4 = rotatePoint({
+    x: mid.x + width / 2,
+    y: mid.y,
+  }, endPointRot, mid);
+  ctx.lineTo(point4.x, point4.y);
+
+  ctx.stroke();
+}
+
+const drawHexDecorations = (ctx, radius, mid, rot, lineWidth) => {
+  const width = radius * Math.sqrt(3);
+  drawDots(ctx, width, mid, 60 * 0 + rot, lineWidth);
+  drawDots(ctx, width, mid, 60 * 3 + rot, lineWidth);
+  drawConnection(ctx, width, mid, 60 * 1 + rot, lineWidth);
+  drawConnection(ctx, width, mid, 60 * 4 + rot, lineWidth);
+}
+
 export const draw = (ctx, dt, p) => {
   clear(ctx);
-
-  const hexPoints = getHexagonPoints(p.radius);
 
   const size = getSize(ctx);
   const hexCount = {
@@ -100,130 +185,11 @@ export const draw = (ctx, dt, p) => {
 
       const rotation = randomRots[hexX][hexY] + (p.rotation * 60);
 
-      const borderPoints = hexPoints
-        .map((point) => movePoint(point, hexMid))
-        .map((point) => rotatePoint(point, rotation, hexMid));
-
-      ctx.fillStyle = "white";
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = p.hexLineSize * scaling;
-
-      ctx.beginPath();
-      ctx.moveTo(borderPoints[0].x, borderPoints[0].y);
-      for (let i = 0; i < borderPoints.length; i++) {
-        const point = borderPoints[(i + 1) % borderPoints.length]
-        ctx.lineTo(point.x, point.y);
-      }
-      //ctx.fill();
-      ctx.stroke();
+      const borderLineSize = p.hexLineSize * scaling;
+      drawHexBorder(ctx, p.radius, hexMid, rotation, borderLineSize);
 
       const lineSize = Math.min(p.pathLineSize  * scaling, p.radius / 2);
-
-      ctx.fillStyle = "black";
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = lineSize;
-
-      const rotOff1 = 60 * 0 + rotation;
-      const pp1 = rotatePoint({
-        x: hexMid.x + size.w / 2,
-        y: hexMid.y,
-      }, rotOff1, hexMid);
-
-      const rot1 = degToRad(rotation + 90);
-      ctx.beginPath();
-      ctx.arc(
-        pp1.x,
-        pp1.y,
-        lineSize / 2,
-        rot1,
-        rot1 + Math.PI
-      )
-      ctx.fill();
-
-      const rotOff2 = 60 * 3 + rotation;
-      const pp2 = rotatePoint({
-        x: hexMid.x + size.w / 2,
-        y: hexMid.y,
-      }, rotOff2, hexMid);
-
-      const rot2 = degToRad(rotation + 270);
-      ctx.beginPath();
-      ctx.arc(
-        pp2.x,
-        pp2.y,
-        lineSize / 2,
-        rot2,
-        rot2 + Math.PI
-      )
-      ctx.fill();
-
-
-
-      ctx.beginPath();
-
-      const rotOff3 = 60 * 1 + rotation;
-      const pp3 = rotatePoint({
-        x: hexMid.x + size.w / 2,
-        y: hexMid.y,
-      }, rotOff3, hexMid);
-      ctx.moveTo(pp3.x, pp3.y);
-
-      const rotOff4 = 60 * 1 + rotation;
-      const pp4 = rotatePoint({
-        x: hexMid.x + size.w / 4,
-        y: hexMid.y,
-      }, rotOff4, hexMid);
-      ctx.lineTo(pp4.x, pp4.y);
-
-      const rotOff5 = 60 * 2 + rotation;
-      const pp5 = rotatePoint({
-        x: hexMid.x + size.w / 4,
-        y: hexMid.y,
-      }, rotOff5, hexMid);
-      ctx.lineTo(pp5.x, pp5.y);
-
-      const rotOff6 = 60 * 2 + rotation;
-      const pp6 = rotatePoint({
-        x: hexMid.x + size.w / 2,
-        y: hexMid.y,
-      }, rotOff6, hexMid);
-      ctx.lineTo(pp6.x, pp6.y);
-
-      ctx.stroke();
-
-
-
-      ctx.beginPath();
-
-      const rotOff7 = 60 * 4 + rotation;
-      const pp7 = rotatePoint({
-        x: hexMid.x + size.w / 2,
-        y: hexMid.y,
-      }, rotOff7, hexMid);
-      ctx.moveTo(pp7.x, pp7.y);
-
-      const rotOff8 = 60 * 4 + rotation;
-      const pp8 = rotatePoint({
-        x: hexMid.x + size.w / 4,
-        y: hexMid.y,
-      }, rotOff8, hexMid);
-      ctx.lineTo(pp8.x, pp8.y);
-
-      const rotOff9 = 60 * 5 + rotation;
-      const pp9 = rotatePoint({
-        x: hexMid.x + size.w / 4,
-        y: hexMid.y,
-      }, rotOff9, hexMid);
-      ctx.lineTo(pp9.x, pp9.y);
-
-      const rotOff10 = 60 * 5 + rotation;
-      const pp10 = rotatePoint({
-        x: hexMid.x + size.w / 2,
-        y: hexMid.y,
-      }, rotOff10, hexMid);
-      ctx.lineTo(pp10.x, pp10.y);
-
-      ctx.stroke();
+      drawHexDecorations(ctx, p.radius, hexMid, rotation, lineSize)
     }
 
   }
