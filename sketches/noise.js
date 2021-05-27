@@ -5,6 +5,7 @@ import {
   resize,
 } from '../canvas.js';
 import perlin from '../perlin.js';
+import { throttle } from '../util.js';
 
 export const name = "noise";
 
@@ -51,7 +52,7 @@ const setup = (ctx) => {
 
 let oldPJson;
 let updateNoise = () => {};
-const throttledUpdateNoise = _.throttle(() => updateNoise(), 500);
+const throttledUpdateNoise = throttle(() => updateNoise(), 500);
 
 export const draw = (ctx, dt, p) => {
   if (!setupDone) {
