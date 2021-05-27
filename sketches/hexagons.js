@@ -17,14 +17,14 @@ export const name = 'hexagons';
 export const params = {
   radius: {
     initial: 50,
-    min: 25,
+    min: 10,
     max: 200,
     decimals: 1,
   },
   rotation: {
     initial: 0,
     min: 0,
-    max: 360,
+    max: 5,
     decimals: 0,
   },
   hexLineSize: {
@@ -98,7 +98,7 @@ export const draw = (ctx, dt, p) => {
         y: spacing.y * hexY + offset.y,
       };
 
-      const rotation = randomRots[hexX][hexY];
+      const rotation = randomRots[hexX][hexY] + (p.rotation * 60);
 
       const borderPoints = hexPoints
         .map((point) => movePoint(point, hexMid))
