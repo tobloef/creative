@@ -54,3 +54,7 @@ canvas {
 	left: 20px;
 	font-family: sans-serif;
 }
+
+.sketches-list > li {
+	margin-bottom: 5px;
+}
