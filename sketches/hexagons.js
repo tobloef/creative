@@ -61,22 +61,22 @@ const getHexagonPoints = (radius) => {
   return points;
 }
 
-const randomRots = [];
-for (let x = 0; x < 100; x++) {
-  randomRots[x] = [];
-  for (let y = 0; y < 100; y++) {
-    randomRots[x][y] = 60 * randomInt(0, 5);
-  }
-}
-const decs = [];
-for (let x = 0; x < 100; x++) {
-  decs[x] = [];
-  for (let y = 0; y < 100; y++) {
-    //decs[x][y] = [false, true, true, false, true, true];
-    decs[x][y] = [...Array(6).keys()].map(() => randBool(0.35));
-  }
+const mapToCoords = (generator) => {
+  let array = [];
+  return (x, y) => {
+    if (array[x] == null) {
+      array[x] = [];
+    }
+    if (array[x][y] == null) {
+      array[x][y] = generator();
+    }
+    return array[x][y];
+  };
 }
 
+const getRandomRotation = mapToCoords(() => 60 * randomInt(0, 5));
+const getRandomDecoration = mapToCoords(() => [...Array(6).keys()].map(() => randBool(0.35)));
+const getMovingSquare = mapToCoords(() => ({ isMoving: false, progress: 0 }));
 
 const drawHexBorder = (ctx, radius, mid, rot, lineWidth) => {
   const hexPoints = getHexagonPoints(radius);
@@ -160,7 +160,7 @@ const drawConnection = (ctx, width, mid, rot, lineWidth) => {
 const drawHexDecorations = (ctx, radius, mid, rot, lineWidth, x, y) => {
   const width = radius * Math.sqrt(3);
   for (let i = 0; i < 6; i++) {
-    if (decs[x][y][i] && i !== 5) {
+    if (getRandomDecoration(x, y)[i] && i !== 5) {
       drawConnection(ctx, width, mid, 60 * i + rot, lineWidth);
       i++;
     } else {
@@ -199,7 +199,7 @@ export const draw = (ctx, dt, p) => {
         y: spacing.y * hexY + offset.y,
       };
 
-      const rotation = randomRots[hexX][hexY] + (p.rotation * 60);
+      const rotation = getRandomRotation(hexX, hexY) + (p.rotation * 60);
 
       const borderLineSize = p.hexLineSize * scaling;
       drawHexBorder(ctx, p.radius, hexMid, rotation, borderLineSize);
