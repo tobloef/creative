@@ -86,7 +86,7 @@ const drawHexBorder = (ctx, radius, mid, rot, lineWidth) => {
     .map((point) => rotatePoint(point, rot, mid));
 
   ctx.fillStyle = "white";
-  ctx.strokeStyle = "black";
+  ctx.strokeStyle = "#111111";
   ctx.lineWidth = lineWidth;
 
   ctx.beginPath();
@@ -96,12 +96,14 @@ const drawHexBorder = (ctx, radius, mid, rot, lineWidth) => {
     ctx.lineTo(point.x, point.y);
   }
   ctx.fill();
-  ctx.stroke();
+  if (lineWidth > 0) {
+    ctx.stroke();
+  }
 }
 
 const drawDots = (ctx, width, mid, rot, lineWidth) => {
-  ctx.fillStyle = "black";
-  ctx.strokeStyle = "black";
+  ctx.fillStyle = "#111111";
+  ctx.strokeStyle = "#111111";
   ctx.lineWidth = lineWidth;
 
   const point = rotatePoint({
@@ -122,9 +124,10 @@ const drawDots = (ctx, width, mid, rot, lineWidth) => {
 }
 
 const drawConnection = (ctx, width, mid, rot, lineWidth) => {
-  ctx.fillStyle = "black";
-  ctx.strokeStyle = "black";
+  ctx.fillStyle = "#111111";
+  ctx.strokeStyle = "#111111";
   ctx.lineWidth = lineWidth;
+  ctx.lineJoin = "round";
 
   ctx.beginPath();
 
@@ -170,7 +173,7 @@ const drawHexDecorations = (ctx, radius, mid, rot, lineWidth, x, y) => {
 }
 
 export const draw = (ctx, dt, p) => {
-  clear(ctx);
+  clear(ctx, "white");
 
   const size = getSize(ctx);
   const hexCount = {
@@ -204,7 +207,7 @@ export const draw = (ctx, dt, p) => {
       const borderLineSize = p.hexLineSize * scaling;
       drawHexBorder(ctx, p.radius, hexMid, rotation, borderLineSize);
 
-      const lineSize = Math.min(p.pathLineSize  * scaling, p.radius / 2);
+      const lineSize = Math.min(p.pathLineSize  * scaling, p.radius);
       drawHexDecorations(ctx, p.radius, hexMid, rotation, lineSize, hexX, hexY);
     }
 
